@@ -34,9 +34,10 @@ namespace HotelReservationSystem
             }
         }
         /// <summary>
-        /// UC 2,4 : Finds the cheapest hotel for the date range.
+        /// Calculates the rate for each hotel and stores in dictionary.
         /// </summary>
-        public static void FindCheapestHotel()
+        /// <returns></returns>
+        public static Dictionary<string, OutputHotel> CalculateRateForEachHotel()
         {
             try
             {
@@ -44,7 +45,7 @@ namespace HotelReservationSystem
                 DateTime checkinDate = DateTime.Parse(Console.ReadLine());
                 Console.WriteLine("Enter the check-out date(DDMMMYYYY):");
                 DateTime checkoutDate = DateTime.Parse(Console.ReadLine());
-                Dictionary<string, int> rateRecords = new Dictionary<string, int>();
+                Dictionary<string, OutputHotel> rateRecords = new Dictionary<string, OutputHotel>();
                 //UC 4 Refactor
                 foreach (var v in hotelRecords)
                 {
@@ -64,20 +65,32 @@ namespace HotelReservationSystem
                         //Incrementing the current tempdate to next day
                         tempDate = tempDate.AddDays(1);
                     }
-                    rateRecords.Add(v.Value.hotelName, totalRate);
+                    //UC 6 Refactor
+                    OutputHotel outputHotel = new OutputHotel(v.Key, v.Value.ratings, totalRate);
+                    rateRecords.Add(v.Value.hotelName, outputHotel);
                 }
-                //Finds the key-value pair where rate is minimum by sorting the dictionary values in ascending order
-                var kvp = rateRecords.OrderBy(kvp => kvp.Value).First();
-                //Iterating the rateRecords dictionary to check how many hotels provide the minimum rate
-                foreach (var v in rateRecords)
-                {
-                    if (v.Value == kvp.Value)
-                        Console.WriteLine($"{v.Key},TotalRate:{v.Value}");
-                }
+                return rateRecords;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// UC 2,4 : Finds the cheapest hotel.
+        /// </summary>
+        public static void FindCheapestHotel()
+        {
+            var rateRecords = CalculateRateForEachHotel();
+            //Finds the key-value pair where rate is minimum by sorting the dictionary values in ascending order
+            var kvp = rateRecords.OrderBy(kvp => kvp.Value.totalRate).First();
+            //Iterating the rateRecords dictionary to check how many hotels provide the minimum rate
+            foreach (var v in rateRecords)
+            {
+                //Checks where the minimum rate matches and displays the HotelName and Rate
+                if (v.Value.totalRate == kvp.Value.totalRate)
+                    Console.WriteLine($"{v.Key},TotalRate:{v.Value.totalRate}");
             }
         }
         /// <summary>
@@ -94,6 +107,31 @@ namespace HotelReservationSystem
                     v.Value.ratings = ratings;
                     break;
                 }
+            }
+        }
+        /// <summary>
+        /// UC 6 : Finds the cheapest best rated hotel.
+        /// </summary>
+        public static void FindCheapestBestRatedHotel()
+        {
+            //Get the raterecords dictionary
+            var rateRecords = CalculateRateForEachHotel();
+            //Dictionary initialized to store details of hotels with cheapest rate
+            Dictionary<string, OutputHotel> cheapestRateDict = new Dictionary<string, OutputHotel>();
+            var kvp = rateRecords.OrderBy(kvp => kvp.Value.totalRate).First();
+            foreach (var v in rateRecords)
+            {
+                if (v.Value.totalRate == kvp.Value.totalRate)
+                    //Add all hotels with same minimum totalRate
+                    cheapestRateDict.Add(v.Key, v.Value);
+            }
+            //Calculates the max rating among all hotels with same totalRate
+            var maxRating = cheapestRateDict.Select(item => item.Value.ratings).Max();
+            foreach (var v in cheapestRateDict)
+            {
+                //Checks how many hotels have the rating=maxRating and prints the details
+                if (v.Value.ratings == maxRating)
+                    Console.WriteLine($"{v.Key},Ratings:{v.Value.ratings},TotalRate:{v.Value.totalRate}");
             }
         }
     }
