@@ -34,7 +34,7 @@ namespace HotelReservationSystem
             }
         }
         /// <summary>
-        /// UC 2 : Finds the cheapest hotel for the date range.
+        /// UC 2,4 : Finds the cheapest hotel for the date range.
         /// </summary>
         public static void FindCheapestHotel()
         {
@@ -78,6 +78,22 @@ namespace HotelReservationSystem
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+            }
+        }
+        /// <summary>
+        /// UC 5 : Adds the ratings to the specified hotel.
+        /// </summary>
+        /// <param name="hotelName">Name of the hotel.</param>
+        /// <param name="ratings">The ratings.</param>
+        public static void AddRatings(string hotelName, int ratings)
+        {
+            foreach (var v in hotelRecords)
+            {
+                if (v.Key == hotelName)
+                {
+                    v.Value.ratings = ratings;
+                    break;
+                }
             }
         }
     }

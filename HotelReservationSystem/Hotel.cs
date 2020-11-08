@@ -16,6 +16,8 @@ namespace HotelReservationSystem
         //UC 3 Refactor to add weekend and weekdays rate
         public int weekdayRate;
         public int weekendRate;
+        //UC 5 Refactor to add ratings to each hotel
+        public int ratings;
 
         public Hotel(string hotelName, int weekdayRate, int weekendRate)
         {
