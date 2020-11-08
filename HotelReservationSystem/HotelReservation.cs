@@ -20,11 +20,11 @@ namespace HotelReservationSystem
         /// </summary>
         /// <param name="hotelName">Name of the hotel.</param>
         /// <param name="ratePerDay">The rate per day.</param>
-        public static void AddHotel(string hotelName, int ratePerDay)
+        public static void AddHotel(string hotelName, int weekdayRate, int weekendRate)
         {
             if (!hotelRecords.ContainsKey(hotelName))
             {
-                Hotel newHotel = new Hotel(hotelName, ratePerDay);
+                Hotel newHotel = new Hotel(hotelName, weekdayRate, weekendRate);
                 hotelRecords.Add(hotelName, newHotel);
             }
             else
@@ -45,9 +45,10 @@ namespace HotelReservationSystem
                 DateTime checkoutDate = DateTime.Parse(Console.ReadLine());
                 int noOfDays = (checkoutDate - checkinDate).Days + 1;
                 Dictionary<string, int> rateRecords = new Dictionary<string, int>();
+                DateTime tempDate = checkinDate;
                 foreach (var v in hotelRecords)
                 {
-                    int rate = v.Value.ratePerDay * noOfDays;
+                    int rate = v.Value.weekdayRate * noOfDays;
                     rateRecords.Add(v.Value.hotelName, rate);
                 }
                 var kvp = rateRecords.OrderBy(kvp => kvp.Value).First();

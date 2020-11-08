@@ -13,12 +13,15 @@ namespace HotelReservationSystem
     public class Hotel
     {
         public string hotelName;
-        public int ratePerDay;
+        //UC 3 Refactor to add weekend and weekdays rate
+        public int weekdayRate;
+        public int weekendRate;
 
-        public Hotel(string hotelName, int ratePerDay)
+        public Hotel(string hotelName, int weekdayRate, int weekendRate)
         {
             this.hotelName = hotelName;
-            this.ratePerDay = ratePerDay;
+            this.weekdayRate = weekdayRate;
+            this.weekendRate = weekendRate;
         }
     }
 }
