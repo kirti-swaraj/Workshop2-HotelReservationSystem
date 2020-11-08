@@ -134,5 +134,18 @@ namespace HotelReservationSystem
                     Console.WriteLine($"{v.Key},Ratings:{v.Value.ratings},TotalRate:{v.Value.totalRate}");
             }
         }
+        /// <summary>
+        /// UC 7 : Finds the best rated hotel amongst all hotels and displays the HotelName and total estimated rate for dates entered.
+        /// </summary>
+        public static void FindBestRatedHotel()
+        {
+            var rateRecords = CalculateRateForEachHotel();
+            int maxRating = rateRecords.Select(item => item.Value.ratings).Max();
+            foreach (var v in rateRecords)
+            {
+                if (v.Value.ratings == maxRating)
+                    Console.WriteLine($"{v.Key},TotalRate:{v.Value.totalRate}");
+            }
+        }
     }
 }
