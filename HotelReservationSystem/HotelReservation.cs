@@ -13,24 +13,44 @@ namespace HotelReservationSystem
 
     public class HotelReservation
     {
-        public static Dictionary<string, Hotel> hotelRecords = new Dictionary<string, Hotel>();
+        public static Dictionary<string, Hotel> hotelRecordsRegularCustomer = new Dictionary<string, Hotel>();
+
+        public static Dictionary<string, Hotel> hotelRecordsRewardsCustomer = new Dictionary<string, Hotel>();
 
         /// <summary>
-        /// UC 1 : Adds the hotel into the record.
+        /// UC 1,9 : Adds the hotel into the record.
         /// </summary>
         /// <param name="hotelName">Name of the hotel.</param>
         /// <param name="ratePerDay">The rate per day.</param>
-        public static void AddHotel(string hotelName, int weekdayRate, int weekendRate)
+        public static void AddHotel(string hotelName, CustomerType customerType, int weekdayRate, int weekendRate)
         {
-            //UC 3 Refactor
-            if (!hotelRecords.ContainsKey(hotelName))
+            //UC 9 Refactor to add customer types
+            switch (customerType)
             {
-                Hotel newHotel = new Hotel(hotelName, weekdayRate, weekendRate);
-                hotelRecords.Add(hotelName, newHotel);
-            }
-            else
-            {
-                Console.WriteLine($"Hotel {hotelName} already exists in the records\n");
+                case CustomerType.REGULAR_CUSTOMER:
+                    //UC 3 Refactor
+                    if (!hotelRecordsRegularCustomer.ContainsKey(hotelName))
+                    {
+                        Hotel newHotel = new Hotel(hotelName, weekdayRate, weekendRate);
+                        hotelRecordsRegularCustomer.Add(hotelName, newHotel);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Hotel {hotelName} already exists in the records\n");
+                    }
+                    break;
+                case CustomerType.REWARDS_CUSTOMER:
+                    //UC 3 Refactor
+                    if (!hotelRecordsRewardsCustomer.ContainsKey(hotelName))
+                    {
+                        Hotel newHotel = new Hotel(hotelName, weekdayRate, weekendRate);
+                        hotelRecordsRewardsCustomer.Add(hotelName, newHotel);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Hotel {hotelName} already exists in the records\n");
+                    }
+                    break;
             }
         }
         /// <summary>
@@ -41,35 +61,73 @@ namespace HotelReservationSystem
         {
             try
             {
+                Console.WriteLine("Enter:\n1.If you are a REGULAR customer\n2.If you are a REWARDS customer");
+                int options = Convert.ToInt32(Console.ReadLine());
                 Console.WriteLine("Enter the check-in date(DDMMMYYYY):");
                 DateTime checkinDate = DateTime.Parse(Console.ReadLine());
                 Console.WriteLine("Enter the check-out date(DDMMMYYYY):");
                 DateTime checkoutDate = DateTime.Parse(Console.ReadLine());
-                Dictionary<string, OutputHotel> rateRecords = new Dictionary<string, OutputHotel>();
-                //UC 4 Refactor
-                foreach (var v in hotelRecords)
+
+                Dictionary<string, OutputHotel> rateRecordsForRegularCustomer = new Dictionary<string, OutputHotel>();
+                Dictionary<string, OutputHotel> rateRecordsForRewardsCustomer = new Dictionary<string, OutputHotel>();
+
+                if (options == 1)
                 {
-                    int totalRate = 0;
-                    DateTime tempDate = checkinDate;
-                    while (tempDate <= checkoutDate)
+                    //UC 4 Refactor
+                    foreach (var v in hotelRecordsRegularCustomer)
                     {
-                        //Checking if the day is weekend
-                        if (tempDate.DayOfWeek == DayOfWeek.Saturday || tempDate.DayOfWeek == DayOfWeek.Sunday)
+                        int totalRate = 0;
+                        DateTime tempDate = checkinDate;
+                        while (tempDate <= checkoutDate)
                         {
-                            totalRate += v.Value.weekendRate;
+                            //Checking if the day is weekend
+                            if (tempDate.DayOfWeek == DayOfWeek.Saturday || tempDate.DayOfWeek == DayOfWeek.Sunday)
+                            {
+                                totalRate += v.Value.weekendRate;
+                            }
+                            else
+                            {
+                                totalRate += v.Value.weekdayRate;
+                            }
+                            //Incrementing the current tempdate to next day
+                            tempDate = tempDate.AddDays(1);
                         }
-                        else
-                        {
-                            totalRate += v.Value.weekdayRate;
-                        }
-                        //Incrementing the current tempdate to next day
-                        tempDate = tempDate.AddDays(1);
+                        //UC 6 Refactor
+                        OutputHotel outputHotel = new OutputHotel(v.Key, v.Value.ratings, totalRate);
+                        rateRecordsForRegularCustomer.Add(v.Value.hotelName, outputHotel);
                     }
-                    //UC 6 Refactor
-                    OutputHotel outputHotel = new OutputHotel(v.Key, v.Value.ratings, totalRate);
-                    rateRecords.Add(v.Value.hotelName, outputHotel);
+                    return rateRecordsForRegularCustomer;
                 }
-                return rateRecords;
+                else if (options == 2)
+                {
+                    //UC 4 Refactor
+                    foreach (var v in hotelRecordsRewardsCustomer)
+                    {
+                        int totalRate = 0;
+                        DateTime tempDate = checkinDate;
+                        while (tempDate <= checkoutDate)
+                        {
+                            //Checking if the day is weekend
+                            if (tempDate.DayOfWeek == DayOfWeek.Saturday || tempDate.DayOfWeek == DayOfWeek.Sunday)
+                            {
+                                totalRate += v.Value.weekendRate;
+                            }
+                            else
+                            {
+                                totalRate += v.Value.weekdayRate;
+                            }
+                            //Incrementing the current tempdate to next day
+                            tempDate = tempDate.AddDays(1);
+                        }
+                        //UC 6 Refactor
+                        OutputHotel outputHotel = new OutputHotel(v.Key, v.Value.ratings, totalRate);
+                        rateRecordsForRewardsCustomer.Add(v.Value.hotelName, outputHotel);
+                    }
+                    return rateRecordsForRewardsCustomer;
+                }
+                else
+                    return null;
+
             }
             catch (Exception e)
             {
@@ -100,7 +158,7 @@ namespace HotelReservationSystem
         /// <param name="ratings">The ratings.</param>
         public static void AddRatings(string hotelName, int ratings)
         {
-            foreach (var v in hotelRecords)
+            foreach (var v in hotelRecordsRegularCustomer)
             {
                 if (v.Key == hotelName)
                 {
@@ -140,12 +198,36 @@ namespace HotelReservationSystem
         public static void FindBestRatedHotel()
         {
             var rateRecords = CalculateRateForEachHotel();
+            //Finds the hotel with max rating
             int maxRating = rateRecords.Select(item => item.Value.ratings).Max();
             foreach (var v in rateRecords)
             {
+                //Check if hotels(one or many) have rating=maxRating and display their details
                 if (v.Value.ratings == maxRating)
                     Console.WriteLine($"{v.Key},TotalRate:{v.Value.totalRate}");
             }
         }
+        /// <summary>
+        /// Adds the hotel and its ratings.
+        /// </summary>
+        public static void AddRatingsAndHotel()
+        {
+            //UC 9
+            //Regular Customer rates
+            AddHotel("Lakewood", CustomerType.REGULAR_CUSTOMER, 110, 90);
+            AddHotel("Bridgewood", CustomerType.REGULAR_CUSTOMER, 150, 50);
+            AddHotel("Ridgewood", CustomerType.REGULAR_CUSTOMER, 220, 150);
+
+            //Rewards Customer Rates
+            AddHotel("Lakewood", CustomerType.REWARDS_CUSTOMER, 80, 80);
+            AddHotel("Bridgewood", CustomerType.REWARDS_CUSTOMER, 110, 50);
+            AddHotel("Ridgewood", CustomerType.REWARDS_CUSTOMER, 100, 40);
+
+            //UC 5
+            AddRatings("Bridgewood", 4);
+            AddRatings("Lakewood", 3);
+            AddRatings("Ridgewood", 5);
+        }
+
     }
 }
