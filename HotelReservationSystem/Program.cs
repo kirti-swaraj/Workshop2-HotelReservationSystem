@@ -16,6 +16,8 @@ namespace HotelReservationSystem
             HotelReservation.AddHotel("Lakewood", 110);
             HotelReservation.AddHotel("Bridgewood", 150);
             HotelReservation.AddHotel("Ridgewood", 220);
+            //UC 2
+            HotelReservation.FindCheapestHotel();
             Console.ReadLine();
         }
     }
