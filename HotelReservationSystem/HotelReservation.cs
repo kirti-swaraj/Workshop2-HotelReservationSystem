@@ -51,6 +51,8 @@ namespace HotelReservationSystem
                         Console.WriteLine($"Hotel {hotelName} already exists in the records\n");
                     }
                     break;
+                default:
+                    throw new HotelReservationCustomException(HotelReservationCustomException.ExceptionType.INVALID_CUSTOMER_TYPE, "INVALID CUSTOMER TYPE");
             }
         }
         /// <summary>
@@ -67,6 +69,8 @@ namespace HotelReservationSystem
                 DateTime checkinDate = DateTime.Parse(Console.ReadLine());
                 Console.WriteLine("Enter the check-out date(DDMMMYYYY):");
                 DateTime checkoutDate = DateTime.Parse(Console.ReadLine());
+                if (checkinDate > checkoutDate)
+                throw new HotelReservationCustomException(HotelReservationCustomException.ExceptionType.INVALID_DATE_RANGE, "CHECKOUT DATE MUST BE AHEAD OF CHECKIN DATE");
 
                 Dictionary<string, OutputHotel> rateRecordsForRegularCustomer = new Dictionary<string, OutputHotel>();
                 Dictionary<string, OutputHotel> rateRecordsForRewardsCustomer = new Dictionary<string, OutputHotel>();
@@ -126,12 +130,12 @@ namespace HotelReservationSystem
                     return rateRecordsForRewardsCustomer;
                 }
                 else
-                    return null;
+                    throw new HotelReservationCustomException(HotelReservationCustomException.ExceptionType.INVALID_CUSTOMER_TYPE, "INVALID CUSTOMER TYPE");
 
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(e.Message);
+                throw new HotelReservationCustomException(HotelReservationCustomException.ExceptionType.INVALID_DATE_FORMAT, "INVALID DATE FORMAT");
             }
         }
 
@@ -158,7 +162,17 @@ namespace HotelReservationSystem
         /// <param name="ratings">The ratings.</param>
         public static void AddRatings(string hotelName, int ratings)
         {
+            //Adding ratings in dictionary for regular customers
             foreach (var v in hotelRecordsRegularCustomer)
+            {
+                if (v.Key == hotelName)
+                {
+                    v.Value.ratings = ratings;
+                    break;
+                }
+            }
+            //Adding ratings in dictionary for rewards customer
+            foreach (var v in hotelRecordsRewardsCustomer)
             {
                 if (v.Key == hotelName)
                 {
